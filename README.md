@@ -38,6 +38,8 @@ Post-Estimation Findings
 - Likelihood Ratio Test (p < 0.001) confirms that the model is statistically significant.
 
 ## View Published Report on Rpubs
-**Note:** Due to the `readthedown` format, the knitted **HTML and PDF outputs are not included in this repository**.  
-To view the full report, please check the **RPubs link below**.
+
+Due to the `readthedown` format, the knitted **HTML and PDF outputs are not included in this repository**.  
+To view the full report, please check the link below:
+
 [https://rpubs.com/data-jesse/1285668]
