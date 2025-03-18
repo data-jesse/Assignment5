@@ -12,7 +12,6 @@ Key objectives:
 
 ## Files in This Repository  
 - Assignment5.Rmd -> R Markdown file containing code, analysis, and interpretations.  
-- Assignment5.pdf -> The knitted report in PDF format.  
 - README.md -> This file, providing an overview of the project.  
 
 ## Data Used  
