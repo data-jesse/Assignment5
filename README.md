@@ -37,5 +37,8 @@ Post-Estimation Findings
 - Predicted probabilities show higher mpg cars are less likely to be manual.
 - Likelihood Ratio Test (p < 0.001) confirms that the model is statistically significant.
 
+## View HTML version of the Report
+[file:///Users/jesseyou/Documents/Data%20712/Assignment-5.html]
+
 ## View Published Report on Rpubs
 [https://rpubs.com/data-jesse/1285668]
