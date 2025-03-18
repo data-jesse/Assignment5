@@ -1,0 +1,159 @@
+---
+title: "Assignment 5"
+author: "Jesse Y"
+date: "2025-03-15"
+output: rmdformats::readthedown
+---
+
+```{r setup, include=FALSE}
+
+# Load required libraries
+library(tidyverse)
+library(clarify)
+library(broom)
+library(texreg)
+library(lmtest)
+library(rmdformats)
+
+# Suppress warnings/messages for cleaner output
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+# **Introduction**
+
+This assignment extends Assignment 4, using post-estimation methods via clarify to enhance interpretation of our logistic regression model predicting transmission type (am) in the mtcars dataset.
+
+We will:
+
+- Simulate model coefficients to assess uncertainty.
+
+- Compute Average Marginal Effects (AME) to quantify the effects of predictors.
+
+- Estimate Predicted Probabilities at different mpg values for deeper insight.
+
+- Evaluate Model Fit using Likelihood Ratio Test, AIC, and BIC.
+
+
+# **Data Preparation**
+
+```{r message=FALSE, warning=FALSE, paged.print=TRUE}
+# Load mtcars dataset
+mtcars_data <- mtcars
+
+# Convert 'am' (Transmission Type) into a binary factor
+mtcars_data <- mtcars_data %>%
+  mutate(am = factor(am, labels = c("Automatic", "Manual")),
+         hp_group = ifelse(hp > median(hp), "High", "Low"))  # Dichotomize horsepower
+
+# Check dataset structure
+str(mtcars_data)
+
+```
+
+
+# **Logistic Regression Model**
+
+```{r message=FALSE, warning=FALSE, paged.print=TRUE}
+# Model: Predicting Transmission Type
+m1 <- glm(am ~ mpg + hp_group + wt, data = mtcars_data, family = binomial)
+summary(m1)
+```
+
+Key Findings:
+
+- mpg is not statistically significant (p = 0.6277), meaning fuel efficiency does not strongly predict transmission type. 
+
+- However, weight (wt) is statistically significant (p = 0.0138), indicating that heavier cars are more likely automatic.  
+
+- hp_group is not statistically significant, suggesting that horsepower (high vs. low) alone does not explain transmission type.
+
+
+# **Post-Estimation with clarify**
+
+## 1. Simulating Model Coefficients
+
+```{r message=FALSE, warning=FALSE, paged.print=TRUE}
+set.seed(123)
+sim_coefs <- sim(m1, n = 1000)
+summary(sim_coefs)
+```
+Significance of This Approach:
+
+- Simulations allow us to estimate uncertainty around our model coefficients.
+
+- This avoids over-reliance on single coefficient values.
+
+## 2. Average Marginal Effects (AME)
+
+```{r message=FALSE, warning=FALSE, paged.print=TRUE}
+sim_ame_results <- sim_ame(sim_coefs, var = "mpg", contrast = "rd", verbose = FALSE)
+summary(sim_ame_results)
+
+# Plot AME
+plot(sim_ame_results, main = "Average Marginal Effect of MPG on Transmission")
+```
+
+Findings: Average Marginal Effects (AME)
+
+- The AME of mpg (-0.0116) suggests that increasing mpg has an extremely small effect on the probability of a car having a manual transmission.  
+
+- This confirms that mpg is not statistically significant, and transmission choice is likely influenced by other variables such as weight.
+
+## 3. Predictions at Set Values
+
+```{r message=FALSE, warning=FALSE, paged.print=TRUE}
+# Define mpg values for prediction
+sim_pred <- sim_setx(sim_coefs, x = list(mpg = c(15, 25)))  
+summary(sim_pred)
+
+# Plot predicted probabilities
+plot(sim_pred, main = "Predicted Probability of Transmission Type at Different MPG Values")
+```
+
+
+Findings: Predicted Probabilities
+
+- At 15 mpg, the probability of manual transmission is 18%.
+
+- At 25 mpg, the probability drops to 4.4%, meaning cars with higher mpg are actually less likely to have a manual transmission in this dataset.
+
+- This suggests that other factors (like weight) may have a stronger influence on transmission choice than mpg alone.
+
+
+# **Model Selection and Fit**
+
+```{r message=FALSE, warning=FALSE, paged.print=TRUE}
+lrtest(m1)   # Likelihood Ratio Test
+AIC(m1)      # Akaike Information Criterion
+BIC(m1)      # Bayesian Information Criterion
+```
+
+Findings: Model Selection and Fit
+
+- The Likelihood Ratio Test (p < 0.001) confirms that our model is statistically significant, meaning the predictors (mpg, hp_group, wt) help explain transmission type.  
+
+- Lower AIC/BIC values suggest our model strikes a balance between fit and complexity.
+
+
+# Key Findings
+
+1. MPG has a small, non-significant effect on transmission type.
+
+2. Weight (wt) is a strong predictor - heavier cars are more likely automatic.
+
+3. Clarify confirms these findings:
+
+- Marginal effects plot shows little impact from mpg.
+
+- Predicted probabilities demonstrate unexpected trends in mpg effects.
+
+
+# Conclusion
+
+This assignment demonstrated how clarify enhances logistic regression analysis by:
+
+- Estimating uncertainty through simulations.
+
+- Providing meaningful marginal effects instead of raw log-odds.
+
+- Visualizing predicted probabilities to communicate findings effectively.
